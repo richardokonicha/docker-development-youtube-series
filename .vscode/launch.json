@@ -1,58 +1,50 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": ".NET Core Docker Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickRemoteProcess}",
-            "pipeTransport": {
-                "pipeProgram": "docker",
-                "pipeArgs": [ "exec", "-i", "csharp" ],
-                "debuggerPath": "/root/vsdbg/vsdbg",
-                "pipeCwd": "${workspaceRoot}",
-                "quoteArgs": false
-            },
-            "sourceFileMap": {
-                "/work": "${workspaceRoot}/c#/src/"
-            }
-        },
-        {
-            "name": "Remote Docker",
-            "type": "go",
-            "request": "launch",
-            "mode": "remote",
-            "remotePath":"/go/src/work/",
-            "port": 2345,
-            "host": "127.0.0.1",
-            "program": "${workspaceFolder}/golang/src/",
-            "args": [],
-            "trace" : "verbose",
-            "env" : {}
-        },
-        {
-            "name": "Python Attach",
-            "type": "python",
-            "request": "attach",
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/python/src/",
-                    "remoteRoot": "/work"
-                }
-            ],
-            "port": 5678,
-            "host": "127.0.0.1"
-        },
-        {
-            "name": "Docker: Attach to Node",
-            "type": "node",
-            "request": "attach",
-            "remoteRoot": "/work/src/",
-            "port": 9229,
-            "address": "localhost",
-            "localRoot": "${workspaceFolder}/nodejs/src/",
-            "protocol": "inspector",
-            "restart": true
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug SST",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["dev", "--increase-timeout"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      // sourceMapRenames helps with the loading spinner when debugging and viewing local variables
+      "sourceMapRenames": false,
+      "env": {
+        "AWS_PROFILE": "flo-ct-flo360"
+      }
+    },
+    {
+      "name": "Debug Tests - Unit",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["bind", "yarn", "\"jest\"", "\"--watch\"", "\"--config\"", "\"./jest.unit.config.cjs\"", "\"${input:scopeTestsFileName}\""],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "flo-ct-flo360"
+      },
+    },
+    {
+      "name": "Debug Tests - E2E",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/sst",
+      "runtimeArgs": ["bind", "yarn", "\"vitest\"", "\"--config\"", "\"./vitest.e2e.config.ts\"", "\"${input:scopeTestsFileName}\""],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "flo-ct-flo360"
+      },
+    },
+  ],
+  "inputs": [
+    {
+      "id": "scopeTestsFileName",
+      "type": "promptString",
+      "description": "Partial file name to scope test debugging to. ex. arena. Leave blank to run all tests.",
+    }
+  ]
 }
